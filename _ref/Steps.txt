@@ -21,3 +21,15 @@ after this is done, check last unvisited nodes
 // Extend both sides to only option [0, 1, 2]
 // Extend to nodes not in traversal path && different between 2 ends (unless all vertices visted)
 // Repeat
+
+
+
+## 2
+if 4 faces:
+
+Face A, check B, C, D
+Face B, check C, D
+Face C, check D
+
+// O((F - 1)) 
+// If 4 faces, will visit 3 + 2 + 1 =  (4 - 1)!

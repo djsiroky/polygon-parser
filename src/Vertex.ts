@@ -10,13 +10,13 @@ class Vertex {
         this.Y = y
     }
 
-    findNeighborVertices(edges: number[][]) {
+    findNeighborVertices(edges: number[][]): void {
         // Filter edges to only include edges starting / ending at target vertex
-        let connections = edges.filter(edge => edge.includes(this.index))
+        const connections = edges.filter(edge => edge.includes(this.index))
         // Remove vertexIndex from each edge array and return flattened array
         const neighborVertices: number[] = []
         connections.forEach(connection => {
-            let match = connection.find(idx => idx !== this.index)
+            const match = connection.find(idx => idx !== this.index)
             if (match !== undefined) {
                 neighborVertices.push(match)
             }
@@ -24,18 +24,17 @@ class Vertex {
         this.neighbors = neighborVertices
     }
 
-    draw(index?: number) {
+    draw(index?: number): void {
         if (typeof document === 'undefined') {
             return
         } 
-        // const svgPoint = `<circle cx="${this.X}" cy="${this.Y}" r="0.1" fill="black" />`
-        let point = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+        const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
         point.setAttribute('cx', `${this.X}`)
         point.setAttribute('cy', `${this.Y}`)
         point.setAttribute('r', '0.1')
         point.setAttribute('fill', 'black')
         document.querySelector('g#points')?.appendChild(point)
-        let text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
         text.setAttribute('x', `${(this.X - 0.5)}`)
         text.setAttribute('y', `${this.Y}`)
         text.textContent = index !== undefined ? `${index}` : `${this.index}`

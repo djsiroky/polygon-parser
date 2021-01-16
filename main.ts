@@ -1,27 +1,29 @@
 import { parsePolygons } from './src/polygonParser'
 import { examplesList, ExampleData } from './data/examples'
+import { Vertex } from './src/Vertex'
+import { Edge } from './src/Edge'
 
-let select = document.querySelector('select#examples') as HTMLSelectElement
-let selectOptions = examplesList.map((_item, idx) => {
-    let e = document.createElement('option')
+const select = document.querySelector('select#examples') as HTMLSelectElement
+const selectOptions = examplesList.map((_item, idx) => {
+    const e = document.createElement('option')
     e.value = `${idx}`
     e.text = `Test Case ${idx + 1}`
     return e
 })
 select?.append(...selectOptions)
 
-select?.addEventListener('change', (event) => {
+select?.addEventListener('change', () => {
     clearSvg()
-    let newIdx = select.options.selectedIndex
+    const newIdx = select.options.selectedIndex
     run(examplesList[newIdx])
   });
 
 
 function clearSvg() {
-    let facesG = document.querySelector('g#faces')
-    let edgesG = document.querySelector('g#edges')
-    let pointsG = document.querySelector('g#points')
-    let groups = [facesG, edgesG, pointsG]
+    const facesG = document.querySelector('g#faces')
+    const edgesG = document.querySelector('g#edges')
+    const pointsG = document.querySelector('g#points')
+    const groups = [facesG, edgesG, pointsG]
     groups.forEach(group => {
         if (group === null) {
             return
@@ -36,17 +38,17 @@ function run(data: ExampleData) {
     let [vertices, edges, faces] = parsePolygons(data)
 
     faces.forEach((face, idx) => {
-        let hue = (360 / faces.length) * idx
+        const hue = (360 / faces.length) * idx
         face.draw(hue)
     })
 
     edges.forEach(edge => edge.draw())
     vertices.forEach(v => v.draw())
 
-    let jsonContent = document.querySelector('#jsonOutput') as Element
-    let jsonVertices = vertices.map(v => ({ index: v.index, X: v.X, Y: v.Y}))
-    let jsonEdges = edges.map(e => ({ id: e.id, start: e.start.index, end: e.end.index}))
-    let jsonFaces = faces.map(f => ({ id: f.id, points: f.points.map(pt => pt.index)}))
+    const jsonContent = document.querySelector('#jsonOutput') as Element
+    const jsonVertices = vertices.map(v => ({ index: v.index, X: v.X, Y: v.Y}))
+    const jsonEdges = edges.map(e => ({ id: e.id, start: e.start.index, end: e.end.index}))
+    const jsonFaces = faces.map(f => ({ id: f.id, points: f.points.map(pt => pt.index)}))
     jsonContent.innerHTML = JSON.stringify({
         vertices: jsonVertices,
         edges: jsonEdges,

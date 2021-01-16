@@ -11,9 +11,9 @@ class Polygon {
 
     get id(): string {
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        let idx = this._index % alphabet.length 
+        const idx = this._index % alphabet.length 
         let id = alphabet[idx]
-        let multiplier = Math.floor(this._index / alphabet.length)
+        const multiplier = Math.floor(this._index / alphabet.length)
         if (multiplier > 0 && multiplier < 26) {
             id = alphabet[multiplier - 1] + id
         }
@@ -21,23 +21,23 @@ class Polygon {
     }
 
     private getAverageOfPoints(): [number, number] {
-        let xAvg = this.points.reduce((prev, curr, idx) => (prev + curr.X), 0) / this.points.length
-        let yAvg = this.points.reduce((prev, curr, idx) => (prev + curr.Y), 0) / this.points.length
+        const xAvg = this.points.reduce((prev, curr) => (prev + curr.X), 0) / this.points.length
+        const yAvg = this.points.reduce((prev, curr) => (prev + curr.Y), 0) / this.points.length
         return [xAvg, yAvg]
 
     }
 
-    draw(hue: number) {
+    draw(hue: number): void {
         if (typeof document === 'undefined') {
             return
         }
-        let polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
         const pointsString = this.points.map(pt => `${pt.X},${pt.Y}`).join(' ')
         polygon.setAttribute('points', pointsString)
         polygon.setAttribute('fill', `hsl(${hue}, 100%, 50%, 0.5)`)
         document.querySelector('g#faces')?.appendChild(polygon)
-        let text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-        let [centerX, centerY] = this.getAverageOfPoints()
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        const [centerX, centerY] = this.getAverageOfPoints()
         text.setAttribute('x', `${(centerX)}`)
         text.setAttribute('y', `${centerY}`)
         text.textContent = this.id

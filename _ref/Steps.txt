@@ -1,0 +1,23 @@
+Make a cycle
+Check for interior edges
+If so, split
+if not / once done
+set all vertices in each polygon as visited
+set each used edge. if used twice, remove from usable edges
+find an untouched vertex and repeat
+
+
+
+====OLD====
+pick the vertex with the most connections
+find all neighbors
+check for edges in list of neighbors
+if found, add that edge and return to start
+if not, check unvisited nodes for next
+after this is done, check last unvisited nodes
+
+
+// Get a node with only 2 edges [1]
+// Extend both sides to only option [0, 1, 2]
+// Extend to nodes not in traversal path && different between 2 ends (unless all vertices visted)
+// Repeat

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polygon Parser</title>
+</head>
+<body style="padding: 2em 4em">
+    <select id="examples" style="display: block;">
+    </select>
+    <div id="container" style="display: flex;">
+        <div id="jsonOutput" style="width: 33%; font-family: 'Courier New', Courier, monospace; white-space: pre-wrap; font-size: x-small;">
+        </div>
+        <svg id="main" width="500" height="500" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <style>
+                text { font: bold 0.5px sans-serif; }
+            </style>
+            <g id="edges" transform="translate(5 5)" stroke="black" stroke-width="0.05"></g>
+            <g id="points" transform="translate(5 5)" fill="black"></g>
+            <g id="faces" transform="translate(5 5)"></g>
+        </svg>
+    </div>
+    
+    <script src="main.ts"></script>
+</body>
+</html>

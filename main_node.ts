@@ -37,12 +37,11 @@ const exampleData7: ExampleData = {
     "edges": [[0, 1], [2, 3], [0, 2], [0, 4], [2, 4], [1, 3], [1, 5], [4, 5], [3, 5]]
 }
 
+import { findAdjacentFaces } from './src/adjacentFaces'
 import { parsePolygons } from './src/polygonParser'
 
-const [vertices, edges, faces] = parsePolygons(exampleData7)
+const faces = parsePolygons(exampleData6)
 
-console.log({
-    vertices,
-    edges,
-    faces
-})
+const adjacentFaces = findAdjacentFaces(faces, 'C')
+console.log('ADJACENT FACES')
+console.log(adjacentFaces.map(face => face.id))

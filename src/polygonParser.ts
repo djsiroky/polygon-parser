@@ -235,6 +235,7 @@ function updateEdgeCounts(c: number[], edgeCounts: { [id: string]: number}, dele
     return edgeCounts
 }
 
+function parsePolygons(data: ExampleData): Polygon[] { 
     const { edges, vertices } = data
 
     // Randomize order of edges so there isn't an ordering bias
@@ -366,9 +367,7 @@ function updateEdgeCounts(c: number[], edgeCounts: { [id: string]: number}, dele
     const faces: Polygon[] = faceCycles.map((polygon, idx) => {
         const polygonPoints = polygon.map(index => nodes[index])
         return new Polygon(polygonPoints, idx)
-    })
-
-    return [nodes, edgeObjects, faces]
+    return faces
 }
 
 export { parsePolygons }

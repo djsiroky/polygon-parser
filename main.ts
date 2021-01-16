@@ -35,7 +35,9 @@ function clearSvg() {
 }
 
 function run(data: ExampleData) {
-    let [vertices, edges, faces] = parsePolygons(data)
+    const vertices = data.vertices.map((v, idx) => new Vertex(idx, v[0], v[1]))
+    const edges = data.edges.map((e) => new Edge(vertices[e[0]], vertices[e[1]]))
+    const faces = parsePolygons(data)
 
     faces.forEach((face, idx) => {
         const hue = (360 / faces.length) * idx

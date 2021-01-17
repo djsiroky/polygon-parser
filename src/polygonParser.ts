@@ -2,6 +2,7 @@ import { Vertex } from './Vertex'
 import { Polygon } from './Polygon'
 import { Edge } from './Edge'
 import { ExampleData } from '../data/examples'
+import { processCliArgsPolygonParser } from './nodeCli'
 
 /**
  * Returns any edges where both start + end vertices

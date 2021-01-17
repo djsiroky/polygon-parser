@@ -6,18 +6,21 @@
   "scripts": {
     "build": "tsc -p tsconfig.node.json",
     "build:web": "parcel build index.html --no-minify",
-    "test": "npm test"
+    "test": "npm run build && node ./dist/cjs/runAllExampleCases.js",
+    "parsePolygons": "npm run build && node ./dist/cjs/src/polygonParser.js",
+    "findAdjacentFaces": "npm run build && node ./dist/cjs/src/adjacentFaces.js"
   },
   "author": "Dan Siroky",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^14.14.21",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "cssnano": "^4.1.10",
     "eslint": "^7.18.0",
-    "parcel-bundler": "^1.12.4",
-    "typescript": "^4.1.3"
+    "parcel-bundler": "^1.12.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "typescript": "^4.1.3",
+    "@types/node": "^14.14.21"
+  }
 }

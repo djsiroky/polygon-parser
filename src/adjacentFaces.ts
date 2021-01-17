@@ -1,5 +1,8 @@
 import { Polygon } from "./Polygon"
 import { Edge } from "./Edge"
+import { Vertex } from "./Vertex"
+import { processCliArgsAdjacentFaces } from "./nodeCli"
+import { FaceData } from "../data/adjacentFaceTests"
 
 /**
  *  Returns a list of adjacent faces to the face with the input id
@@ -32,4 +35,21 @@ export function findAdjacentFaces(faces: Polygon[], id: string): Polygon[] {
         })
     }) // O(n * m^2)
     return adjacentFaces
+}
+
+if (typeof require !== 'undefined' && require.main === module) {
+    const data: [FaceData, string] | null = processCliArgsAdjacentFaces()
+    if (data !== null) {
+        const { vertices, faces } = data[0]
+        if (faces.findIndex(face => face.id === data[1]) === -1) {
+            console.log(`Face ID was not found in data. Face IDs are: [${faces.map(face => face.id)}]`)
+        }
+        const verts = vertices.map(vertex => new Vertex(vertex.index, vertex.X, vertex.Y))
+        const polygons = faces.map((face, idx) => {
+            const points = face.points.map(point => verts[point])
+            return new Polygon(points, idx)
+        })
+        const adjacentFaces = findAdjacentFaces(polygons, data[1])
+        console.log(`Adjacent Faces to ${data[1]}: [${adjacentFaces.map(f => f.id)}]`)
+    }
 }

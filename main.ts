@@ -58,4 +58,4 @@ function run(data: ExampleData) {
     }, undefined, 2)
 }
 
-run(examplesList[examplesList.length - 1])
+run(examplesList[0])

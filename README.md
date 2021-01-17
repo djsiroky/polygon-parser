@@ -2,7 +2,7 @@
 
 This is implemented in TypeScript, so to run this requires TypeScript. Install using npm with:
 ```
-npm install
+npm install --production
 ```
 To compile to JavaScript, run `npm build`
 
@@ -61,4 +61,21 @@ npm run polygonParser 6 "B"
 ```
 ```
 npm run polygonParser exampleCase4 "D"
+```
+
+## Project Structure
+```
+/data                           # Example cases / tests
+| - /adjacentFaceTests
+    | - exampleCase.json
+    | - ...
+| - /polygonParsertests
+    | - index.ts
+    | - ...
+/src                            # Source-code for classes, algorithms, and utilities
+    | - ...
+index.html                      # HTML page to show results of polygonParser
+main.ts                         # The main content of the web-based implementation
+tsconfig.json                   # TypeScript project config for web-based implementation
+tsconfig.node.json              # TypeScript project config for CLI based implementation
 ```

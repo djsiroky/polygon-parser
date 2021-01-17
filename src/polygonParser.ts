@@ -1,7 +1,7 @@
 import { Vertex } from './Vertex'
 import { Polygon } from './Polygon'
 import { Edge } from './Edge'
-import { ExampleData } from '../data/examples'
+import { ExampleData } from '../data/polygonParserTests'
 import { processCliArgsPolygonParser } from './nodeCli'
 
 /**

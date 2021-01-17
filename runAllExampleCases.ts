@@ -1,4 +1,4 @@
-import { examplesList } from './data/examples'
+import { examplesList } from './data/polygonParserTests'
 import { findAdjacentFaces } from './src/adjacentFaces'
 import { parsePolygons } from './src/polygonParser'
 

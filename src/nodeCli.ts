@@ -1,4 +1,4 @@
-import { ExampleData, examplesList } from "../data/examples"
+import { ExampleData, examplesList } from "../data/polygonParserTests"
 import { examplesList as adjacentFaceExamples, FaceData } from "../data/adjacentFaceTests"
 import path from 'path'
 import fs from 'fs'

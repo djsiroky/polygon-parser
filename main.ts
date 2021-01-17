@@ -1,5 +1,5 @@
 import { parsePolygons } from './src/polygonParser'
-import { examplesList, ExampleData } from './data/examples'
+import { examplesList, ExampleData } from './data/polygonParserTests'
 import { Vertex } from './src/Vertex'
 import { Edge } from './src/Edge'
 

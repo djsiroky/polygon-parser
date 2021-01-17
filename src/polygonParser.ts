@@ -161,12 +161,16 @@ function findCycleByNeighborCount(startNode: Vertex, nodes: Vertex[]) {
 }
 
 /**
+ * Attempts to find a cycle using the pointLineTest as a 
+ * heuristic, choosing the "most inward" (closest to 0, but
+ * not 0) of possible neighbors.
  * 
- * TODO: Computational Complexity: O(n + m)  
- * @param edge 
- * @param edges 
- * @param nodes 
- * @param edgeCounts 
+ * Computational Complexity: O(n * m)  
+ * 
+ * @param edge - unused edge that will be the start/end of the cycle
+ * @param edges - all edges in the graph
+ * @param nodes  - all nodes in the graph
+ * @param edgeCounts - object of current edge counts to remove options connected with a 2x used edge
  */
 function findCycleByPointLineTest(edge: number[], edges: number[][], nodes: Vertex[], edgeCounts: {[index: string]: number}) {
         const newCycle: number[] = []
@@ -180,43 +184,45 @@ function findCycleByPointLineTest(edge: number[], edges: number[][], nodes: Vert
         while (newCycle[newCycle.length - 1] != endNode.index) {
             try {
                 if (newCycle.length == 1) {
+                    // For first pass, filter out the endNode as an option so we don't return [startNode => endNode]
                     nextOpts = nodes[currentNode].neighbors.filter(x => x !== edge[1] && !newCycle.includes(x))
-                        .filter(x => edgeCounts[[currentNode, x].sort((a, b) => a - b).join('_')] < 2)
+                        .filter(x => edgeCounts[[currentNode, x].sort((a, b) => a - b).join('_')] < 2) // O(n * m)
                 } else {
+                    // For subsequent pass, filter out the startNode as an option
                     nextOpts = nodes[currentNode].neighbors.filter(x => x !== edge[0] && !newCycle.includes(x)) 
-                        .filter(x => edgeCounts[[currentNode, x].sort((a, b) => a - b).join('_')] < 2)
+                        .filter(x => edgeCounts[[currentNode, x].sort((a, b) => a - b).join('_')] < 2) // O(n * m)
                 }
                 let edgeToTest = [[endNode.X, endNode.Y], [startNode.X, startNode.Y]] 
                 if (newCycle.length > 1) {
                     const prevNode = newCycle[newCycle.length - 2]
                     edgeToTest = [[nodes[prevNode].X, nodes[prevNode].Y], [nodes[currentNode].X, nodes[currentNode].Y]]
-                    nodes[currentNode].findNeighborVertices(edges)
-                    nextOpts = nodes[currentNode].neighbors.filter(x => x !== edge[0] && !newCycle.includes(x))
-                        .filter(x => edgeCounts[[currentNode, x].sort((a, b) => a - b).join('_')] < 2)
                 }
-                if (nextOpts.includes(edge[1])) {
+                // If endNode is an option, pick that
+                if (nextOpts.includes(edge[1])) { // O(n)
                     currentNode = edge[1]
+                // If only one option, pick that one
                 } else if (nextOpts.length === 1) {
                     currentNode = nextOpts[0]
                 } else {
-                    let ds = nextOpts.map(opt => (pointLineTest(nodes[opt], edgeToTest))).filter(d => d !== 0)
+                    // Otherwise, use pointLIneTest as heuristic
+                    let ds = nextOpts.map(opt => (pointLineTest(nodes[opt], edgeToTest))).filter(d => d !== 0) // O(n)
                     const dObj: {[index: number]: number} = {}
-                    ds.forEach((d, i) => dObj[nextOpts[i]] = d)
+                    ds.forEach((d, i) => dObj[nextOpts[i]] = d)  // O(n)
                     let idx = ds.indexOf(Math.min(...ds))
-                    if (ds.map(d => d / Math.abs(d)).every(v => v === 1)) {
+                    if (ds.map(d => d / Math.abs(d)).every(v => v === 1)) { // O(n)
                         directionToFocus = 1
-                    } else if (ds.map(d => d / Math.abs(d)).every(v => v === -1)) {
+                    } else if (ds.map(d => d / Math.abs(d)).every(v => v === -1)) { // O(n)
                         directionToFocus = -1
                     }
                     if (directionToFocus == -1) {
-                        nextOpts = nextOpts.filter((opt, id) => ds[id] < 0)
-                        ds = ds.filter(d => d < 0)
-                        idx = ds.indexOf(Math.max(...ds))
+                        nextOpts = nextOpts.filter((opt, id) => ds[id] < 0) // O(n)
+                        ds = ds.filter(d => d < 0) // O(n)
+                        idx = ds.indexOf(Math.max(...ds)) // O(n)
                     }
                     if (directionToFocus == 1) {
-                        nextOpts = nextOpts.filter((opt, id) => ds[id] > 0)
-                        ds = ds.filter(d => d > 0)
-                        idx = ds.indexOf(Math.min(...ds))
+                        nextOpts = nextOpts.filter((opt, id) => ds[id] > 0)  // O(n)
+                        ds = ds.filter(d => d > 0)  // O(n)
+                        idx = ds.indexOf(Math.min(...ds))  // O(n)
                     }
                     currentNode = nextOpts[idx]
                     if (idx === -1) {
@@ -233,24 +239,24 @@ function findCycleByPointLineTest(edge: number[], edges: number[][], nodes: Vert
 }
 
 /**
- * TODO 
- * Tests a cycle + a point to determine if the given
+ * Tests all points in a pair of cycles and the splitting
+ * interior edge to determine if splitting the cycle
+ * would create an interior point
  * 
  * Computational Complexity: O(n)  
  * 
- * @param cycles  - 
- * @param intEdge - 
+ * @param cycles  - potentially split cycles 
+ * @param intEdge - edge that is splitting the cycle into two
  * @param nodes  - all nodes in the graph
  */
-function pointInsideCycles(cycles: number[][], intEdge: number[], nodes: Vertex[]) {
+function pointInsideCycles(cycles: [number[], number[]], intEdge: number[], nodes: Vertex[]): boolean {
     let [cycle1, cycle2] = [...cycles]
     cycle1 = cycle1.slice(1, cycle1.length - 1)
     cycle2 = cycle2.slice(1, cycle2.length - 1)
     const edgeStart = nodes[intEdge[0]]
     const edgeEnd = nodes[intEdge[1]]
     const edge = [[edgeStart.X, edgeStart.Y], [edgeEnd.X, edgeEnd.Y]]
-    // TODO: Better implementation of this
-    const r = cycle1.map(x => {
+    const r1 = cycle1.map(x => {
         const d = pointLineTest(nodes[x], edge) // O(1)
         if (d > 0) {
             return 1
@@ -259,7 +265,7 @@ function pointInsideCycles(cycles: number[][], intEdge: number[], nodes: Vertex[
         }
         return 0
     }) // O(n)
-    const r1 = cycle2.map(x => {
+    const r2 = cycle2.map(x => {
         const d = pointLineTest(nodes[x], edge)
         if (d > 0) {
             return 1
@@ -268,7 +274,7 @@ function pointInsideCycles(cycles: number[][], intEdge: number[], nodes: Vertex[
         }
         return 0
     }) // O(n)
-    if (r[0] === r1[0]) {  // O(n)
+    if (r1[0] === r2[0] && r1.every(x => x === r1[0]) && r2.every(x => x === r2[0])) {  // O(n)
         return true
     }
     return false
@@ -339,7 +345,7 @@ function updateEdgeCounts(cycle: number[], edgeCounts: { [id: string]: number}, 
  * edges (the indices of the start and end vertices) and returns
  * an array of closed faces or polygons
  * 
- * TODO Estimated Computational Complexity: O(n)  
+ * Estimated Computational Complexity: O(n^2)  
  * 
  * @param data - an object with keys vertices and edges
  */
@@ -350,8 +356,8 @@ function parsePolygons(data: ExampleData): Polygon[] {
     // edges = shuffle(edges)
 
     // Draw edges and vertices  O(v + e)
-    const nodes: Vertex[] = vertices.map((vertex, idx) => new Vertex(idx, vertex[0], vertex[1])) // O(v)
-    const edgeObjects: Edge[] = edges.map(edge => new Edge(nodes[edge[0]], nodes[edge[1]])) // O(e)
+    const nodes: Vertex[] = vertices.map((vertex, idx) => new Vertex(idx, vertex[0], vertex[1])) // O(n)
+    const edgeObjects: Edge[] = edges.map(edge => new Edge(nodes[edge[0]], nodes[edge[1]])) // O(n)
 
     // Initialize edgeCounts
     let edgeCounts: { [index: string ]: number } = {}
@@ -364,17 +370,17 @@ function parsePolygons(data: ExampleData): Polygon[] {
     }) // O(v)
 
     // Start with node with fewest neighbors
-    const startNode = findNodeWithFewestConnections(nodes)  // O(v)
+    const startNode = findNodeWithFewestConnections(nodes)  // O(n)
 
-    // STEP
+    // STEP 1
     // Traverse the nodes until a cycle is found,
     // using the fewest number of neighbors as 
     // the target/heuristic. Ideally, this will be
     // the perimeter of the input shape, but there are
     // checks if this is not the case.
-    const traversalPath = findCycleByNeighborCount(startNode, nodes)  // TODO O()
+    const traversalPath = findCycleByNeighborCount(startNode, nodes)  // O(n^2 + n * m)
 
-    // STEP
+    // STEP 2
     // Check the found cycle for interior edges
     // If found, split the cycle by the interior edge
     // Repeat until no further edges are found
@@ -398,7 +404,7 @@ function parsePolygons(data: ExampleData): Polygon[] {
         }
     }
 
-    // STEP
+    // STEP 3
     // Any remaining nodes are interior. To find which cycle they're a part of, 
     // find the neighbor of the node and find which cycle has all neighbors in it
     const usedNodes: number[] = []
@@ -406,13 +412,13 @@ function parsePolygons(data: ExampleData): Polygon[] {
     
     const interiorNodes = nodes.map(n => n.index).filter(n => !usedNodesSet.has(n)) // O(n)
     interiorNodes.forEach(intNodeIdx => {
-        // TODO
+        // Try and find the cycle that contains the interior node
         const containingCycleIdx = faceCycles.findIndex(polygon => nodes[intNodeIdx].neighbors.every(pt => polygon.includes(pt) ))
         if (containingCycleIdx !== -1) {
+            // If found, split the cycle by a path that goes through the interior node
             const containingCycle = faceCycles[containingCycleIdx]
             const deletedCycle = faceCycles.splice(containingCycleIdx, 1)
             edgeCounts = updateEdgeCounts(deletedCycle[0], edgeCounts, true) // O(n)
-            // interior node -> containingCycle[0]
             const neighbors = nodes[intNodeIdx].neighbors
             const firstN = neighbors[0]
             const secondN = neighbors[Math.floor(neighbors.length / 2)]
@@ -427,15 +433,10 @@ function parsePolygons(data: ExampleData): Polygon[] {
                 cyclesToCheck.push(cycle)
             })  // O(n^2)
 
-            // continue cycle and check if containingCycle[i] exists
-            // if so, add c to cycles, reset array, and repeat
-            // if not, continue and repeat
-        } else {
-            // Reparse starting from missing node and already visited
         }
     })
     
-    // STEP
+    // STEP 4
     // If checking interior nodes generated any new 
     // cycles, check those for interior edges and 
     // split by the interior edge
@@ -451,7 +452,7 @@ function parsePolygons(data: ExampleData): Polygon[] {
         }
     }
 
-    // STEP
+    // STEP 5
     // Finally, check for any unused edges. Typically, this
     // occurs when there's no topological difference between
     // two interior edges and one is not picked up. 
@@ -466,7 +467,7 @@ function parsePolygons(data: ExampleData): Polygon[] {
         if (edgeCounts[edgeObj.id] !== 0) {
             return
         }
-        const newCycle =  findCycleByPointLineTest(edge, edges, nodes, edgeCounts) // TODO
+        const newCycle = findCycleByPointLineTest(edge, edges, nodes, edgeCounts) // O(n * m)
 
         // If success, add new edge to faceCycles
         if (newCycle !== undefined) {
@@ -476,7 +477,7 @@ function parsePolygons(data: ExampleData): Polygon[] {
             // If fail, check for an interior edge
             faceCycles.forEach((c, i, arr) => {
                 const iE = findInteriorEdge(c ,edges) // O(n^2)
-                const iEIds = iE.map(e => e.sort((a, b) => a -b).join('_')) // TODO
+                const iEIds = iE.map(e => e.sort((a, b) => a -b).join('_')) // O(n^2)
                 if (iEIds.includes(edgeObj.id)) {
                     const [cycle1, cycle2] = splitCycleByInteriorEdge(c , edge) // O(n^2)
                     arr[i] = cycle1
@@ -490,12 +491,32 @@ function parsePolygons(data: ExampleData): Polygon[] {
         }
     })
 
+    // STEP 6
     // Generate Polygons from each cycle and return
     const faces: Polygon[] = faceCycles.map((polygon, idx) => {
         const polygonPoints = polygon.map(index => nodes[index])
         return new Polygon(polygonPoints, idx)
     }) // O(n * m)
     return faces
+}
+
+
+if (typeof require !== 'undefined' && require.main === module) {
+    const data = processCliArgsPolygonParser()
+    if (data !== null) {
+        const vertices = data.vertices.map((v, idx) => new Vertex(idx, v[0], v[1]))
+        const edges = data.edges.map((e) => new Edge(vertices[e[0]], vertices[e[1]]))
+        const jsonVertices = vertices.map(v => ({ index: v.index, X: v.X, Y: v.Y}))
+        const jsonEdges = edges.map(e => ({ id: e.id, start: e.start.index, end: e.end.index}))
+        const faces = parsePolygons(data)
+        const jsonFaces = faces.map(f => ({ id: f.id, points: f.points.map(pt => pt.index)}))
+        const output = {
+            vertices: jsonVertices,
+            edges: jsonEdges,
+            faces: jsonFaces
+        }
+        console.log(JSON.stringify(output, undefined, 2))
+    }
 }
 
 export { parsePolygons }
